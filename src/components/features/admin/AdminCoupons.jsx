@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { apiFetch } from '@/api/httpClient';
+import { toastService } from '@/lib/toast-service';
 
 export default function AdminCoupons() {
   const queryClient = useQueryClient();
@@ -25,11 +26,17 @@ export default function AdminCoupons() {
       setShowForm(false);
       toast.success('Coupon created!');
     },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Failed to create coupon.');
+    },
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => apiFetch(`/api/coupons/${id}`, { method: 'PATCH', body: data }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-coupons'] }),
+    onError: (error) => {
+      toastService.handleApiError(error, 'Failed to update coupon.');
+    },
   });
 
   const deleteMutation = useMutation({
@@ -37,6 +44,9 @@ export default function AdminCoupons() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
       toast.success('Coupon deleted');
+    },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Failed to delete coupon.');
     },
   });
 

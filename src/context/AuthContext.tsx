@@ -2,6 +2,7 @@ import React, { createContext, useState, useContext, useEffect, useCallback, Rea
 import { base44 } from '@/services/api';
 import { apiFetch } from '@/api/httpClient';
 import { AuthContextValue, User, AuthError, PublicSettings } from '@/types';
+import { toastService } from '@/lib/toast-service';
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
@@ -34,6 +35,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setAuthError(null);
       } else {
         setAuthError({ type: 'unknown', message: error.message || 'Authentication failed' });
+        toastService.authError(error);
       }
     } finally {
       setIsLoadingAuth(false);
@@ -54,6 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.error('App state check failed:', error);
       setAuthError({ type: 'unknown', message: error.message || 'Failed to load app' });
       setIsLoadingAuth(false);
+      toastService.handleApiError(error, 'Failed to load application settings.');
     } finally {
       setIsLoadingPublicSettings(false);
     }

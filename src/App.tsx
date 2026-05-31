@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/ui/sonner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClientInstance } from '@/lib/query-client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -24,6 +24,8 @@ const FAQ = lazy(() => import('./pages/FAQ'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Login = lazy(() => import('./pages/Login'));
 const Signup = lazy(() => import('./pages/Signup'));
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
 const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const Sitemap = lazy(() => import('./pages/Sitemap'));
@@ -62,6 +64,8 @@ const AuthenticatedApp: React.FC = () => {
           <Route path="/loyalty" element={<Loyalty />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
         <Route path="*" element={<PageNotFound />} />
       </Routes>
@@ -76,7 +80,7 @@ function App() {
         <Router>
           <AuthenticatedApp />
         </Router>
-        <Toaster />
+        <Toaster position="top-center" duration={4000} closeButton richColors />
       </QueryClientProvider>
     </AuthProvider>
   );

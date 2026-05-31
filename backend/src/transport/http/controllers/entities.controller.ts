@@ -314,14 +314,35 @@ export const updateOrder: RequestHandler = async (req, res, next) => {
     if (req.auth.role !== "admin" && existing.userId !== req.auth.sub) {
       throw new HttpError(403, "Forbidden");
     }
+
+    const updateData: Record<string, any> = {};
+
+    if (req.auth.role === "admin") {
+      if (data.status !== undefined) {
+        updateData.status = String(data.status) as import("@prisma/client").OrderStatus;
+      }
+      if (data.trackingId !== undefined) {
+        updateData.trackingId = data.trackingId ? String(data.trackingId) : null;
+      }
+    } else {
+      if (data.trackingId !== undefined) {
+        throw new HttpError(403, "Only admins can modify tracking details");
+      }
+      if (data.status !== undefined) {
+        const requestedStatus = String(data.status);
+        if (requestedStatus !== "cancelled") {
+          throw new HttpError(403, "Users can only cancel their own orders");
+        }
+        if (existing.status !== "pending" && existing.status !== "confirmed") {
+          throw new HttpError(400, "Only pending or confirmed orders can be cancelled");
+        }
+        updateData.status = "cancelled";
+      }
+    }
+
     const row = await prisma.order.update({
       where: { id: routeParam(req.params.id) },
-      data: {
-        ...(data.status !== undefined
-          ? { status: String(data.status) as import("@prisma/client").OrderStatus }
-          : {}),
-        ...(data.trackingId !== undefined ? { trackingId: data.trackingId ? String(data.trackingId) : null } : {}),
-      },
+      data: updateData,
       include: { items: true },
     });
     res.json(serializeOrder(row));
@@ -329,6 +350,7 @@ export const updateOrder: RequestHandler = async (req, res, next) => {
     next(e);
   }
 };
+
 
 // ─── Reviews ──────────────────────────────────────────────────
 

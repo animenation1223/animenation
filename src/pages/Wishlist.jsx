@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { useSEO } from '@/lib/seo';
 import { useAuth } from '@/context/AuthContext';
+import { toastService } from '@/lib/toast-service';
 import EmptyState from '../components/common/EmptyState';
 import PageLoader from '../components/common/PageLoader';
 
@@ -29,6 +30,9 @@ export default function Wishlist() {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
       toast.success('Removed from wishlist');
+    },
+    onError: (error) => {
+      toastService.wishlistError(error);
     },
   });
 

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -19,10 +20,15 @@ export default function Contact() {
       return;
     }
     setSubmitting(true);
-    await base44.entities.ContactMessage.create(form);
-    toast.success('Message sent! We\'ll get back to you soon.');
-    setForm({ name: '', email: '', subject: '', message: '' });
-    setSubmitting(false);
+    try {
+      await base44.entities.ContactMessage.create(form);
+      toast.success('Message sent! We\'ll get back to you soon.');
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      toastService.handleApiError(error, 'Failed to send message. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

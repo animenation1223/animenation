@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { ArrowRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 import CartItem from '../components/features/cart/CartItem';
 import CouponSection from '../components/features/cart/CouponSection';
@@ -52,6 +53,9 @@ export default function Cart() {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
     },
+    onError: (error) => {
+      toastService.cartError(error);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -60,6 +64,9 @@ export default function Cart() {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
       toast.success('Removed from cart');
+    },
+    onError: (error) => {
+      toastService.cartError(error);
     },
   });
 

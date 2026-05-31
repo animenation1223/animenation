@@ -3,6 +3,8 @@ import { MapPin, CheckCircle, Truck, Package, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/api/httpClient';
+import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 export default function PincodeChecker({ className = '' }) {
   const [pincode, setPincode] = useState('');
@@ -19,7 +21,9 @@ export default function PincodeChecker({ className = '' }) {
       const info = await apiFetch(`/api/pincode/${pincode}`);
       setResult(info);
     } catch (e) {
-      setError(e.status === 404 ? 'Delivery not available for this PIN' : (e.message || 'Check failed'));
+      const errorMessage = e.status === 404 ? 'Delivery not available for this PIN' : (e.message || 'Check failed');
+      setError(errorMessage);
+      toastService.handleApiError(e, errorMessage);
     } finally {
       setLoading(false);
     }

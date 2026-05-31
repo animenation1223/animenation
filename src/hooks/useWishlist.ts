@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/services/api';
 import { WishlistItem } from '@/types';
+import { toastService } from '@/lib/toast-service';
 
 export function useWishlistQuery(enabled: boolean = true) {
   return useQuery<WishlistItem[]>({
@@ -20,6 +21,9 @@ export function useAddToWishlistMutation() {
       queryClient.invalidateQueries({ queryKey: ['wishlist-items'] });
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
     },
+    onError: (error) => {
+      toastService.wishlistError(error);
+    },
   });
 }
 
@@ -30,6 +34,9 @@ export function useDeleteWishlistMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist-items'] });
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
+    },
+    onError: (error) => {
+      toastService.wishlistError(error);
     },
   });
 }

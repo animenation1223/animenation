@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, ChevronLeft, MapPin, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 import CheckoutSteps from '../components/features/checkout/CheckoutSteps';
 import PaymentSelector from '../components/features/checkout/PaymentSelector';
@@ -108,6 +109,7 @@ export default function Checkout() {
       });
       if (!orderResp.ok) {
         const err = await orderResp.json().catch(() => null);
+        toastService.paymentError(err || new Error('Failed to create payment order'));
         throw new Error(err?.error?.message || 'Failed to create payment order');
       }
       const gatewayOrder = await orderResp.json();
@@ -143,6 +145,7 @@ export default function Checkout() {
             });
             if (!verifyResp.ok) {
               const err = await verifyResp.json().catch(() => null);
+              toastService.paymentError(err || new Error('Payment verification failed'));
               throw new Error(err?.error?.message || 'Payment verification failed');
             }
             queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -171,7 +174,9 @@ export default function Checkout() {
                 gateway_order_id: gatewayOrder.gateway_order_id,
                 reason: 'Checkout closed by user',
               }),
-            }).catch(() => {});
+            }).catch((error) => {
+              toastService.paymentError(error);
+            });
             setPaymentError('Payment was not completed. You can retry.');
             setRetryPayload({
               payment_method: payment,
@@ -193,7 +198,9 @@ export default function Checkout() {
             gateway_payment_id: resp?.error?.metadata?.payment_id,
             reason: resp?.error?.description || 'Gateway failure',
           }),
-        }).catch(() => {});
+        }).catch((error) => {
+          toastService.paymentError(error);
+        });
         setPaymentError(resp?.error?.description || 'Payment failed');
         setRetryPayload({
           payment_method: payment,

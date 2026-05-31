@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 import ImageGallery from '../components/features/product/ImageGallery';
 import ProductTrustBadges from '../components/features/product/ProductTrustBadges';
@@ -101,17 +102,21 @@ export default function ProductDetail() {
       toast.error('Please select a size first');
       return;
     }
-    await base44.entities.CartItem.create({
-      product_id: product.id,
-      title: product.title,
-      price: product.price,
-      quantity,
-      size: selectedSize,
-      image_url: product.image_url,
-    });
-    queryClient.invalidateQueries({ queryKey: ['cart-count'] });
-    queryClient.invalidateQueries({ queryKey: ['cart'] });
-    toast.success('Added to cart!');
+    try {
+      await base44.entities.CartItem.create({
+        product_id: product.id,
+        title: product.title,
+        price: product.price,
+        quantity,
+        size: selectedSize,
+        image_url: product.image_url,
+      });
+      queryClient.invalidateQueries({ queryKey: ['cart-count'] });
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      toast.success('Added to cart!');
+    } catch (error) {
+      toastService.cartError(error);
+    }
   }, [product, selectedSize, quantity, queryClient]);
 
   const buyNow = async () => {
@@ -122,15 +127,20 @@ export default function ProductDetail() {
   const addToWishlist = async () => {
     if (wishlisted) return;
     setWishlisted(true);
-    await base44.entities.WishlistItem.create({
-      product_id: product.id,
-      title: product.title,
-      price: product.price,
-      image_url: product.image_url,
-      category: product.category,
-    });
-    queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
-    toast.success('Added to wishlist!');
+    try {
+      await base44.entities.WishlistItem.create({
+        product_id: product.id,
+        title: product.title,
+        price: product.price,
+        image_url: product.image_url,
+        category: product.category,
+      });
+      queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
+      toast.success('Added to wishlist!');
+    } catch (error) {
+      setWishlisted(false);
+      toastService.wishlistError(error);
+    }
   };
 
   const handleShare = () => {

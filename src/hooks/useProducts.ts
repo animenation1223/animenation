@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/services/api';
 import { Product } from '@/types';
+import { toastService } from '@/lib/toast-service';
 
 export function useProductsQuery(limit: number = 200) {
   return useQuery<Product[]>({
@@ -77,6 +78,9 @@ export function useCreateProductMutation() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
     },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Unable to create product.');
+    },
   });
 }
 
@@ -89,6 +93,9 @@ export function useUpdateProductMutation() {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       queryClient.invalidateQueries({ queryKey: ['product', id] });
     },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Unable to update product.');
+    },
   });
 }
 
@@ -99,6 +106,9 @@ export function useDeleteProductMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+    },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Unable to delete product.');
     },
   });
 }
@@ -111,6 +121,9 @@ export function useUpdateProductStockMutation() {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       queryClient.invalidateQueries({ queryKey: ['product', id] });
+    },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Unable to update product stock.');
     },
   });
 }

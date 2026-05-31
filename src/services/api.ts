@@ -1,6 +1,7 @@
 import { apiFetch, createEntityApi, getAccessToken, setAccessToken } from '@/api/httpClient';
 import { appParams } from '@/lib/app-params';
 import { Base44Client, Base44Entities, Product, CartItem, WishlistItem, Order, Review, BlogPost, ContactMessage } from '@/types';
+import { toastService } from '@/lib/toast-service';
 
 const entities: Base44Entities = {
   Product: createEntityApi<Product>('products'),
@@ -26,7 +27,9 @@ export const base44: Base44Client = {
     },
     logout(redirectUrl) {
       setAccessToken(null);
-      apiFetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+      apiFetch('/api/auth/logout', { method: 'POST' }).catch((error) => {
+        toastService.handleApiError(error, 'Logout failed, but you have been logged out locally.');
+      });
       if (redirectUrl) {
         const url = new URL(redirectUrl);
         url.searchParams.delete('access_token');

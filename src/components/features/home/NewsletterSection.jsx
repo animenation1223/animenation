@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { apiFetch, getAccessToken } from '@/api/httpClient';
 import { addPoints, POINTS_CONFIG } from '@/lib/loyalty';
+import { toastService } from '@/lib/toast-service';
 
 const PERKS = [
   { icon: Zap, text: 'Early drop access' },
@@ -31,7 +32,7 @@ export default function NewsletterSection() {
       toast.success("You're in! +100 loyalty points when signed in 🎉", { duration: 4000 });
       setEmail('');
     } catch (err) {
-      toast.error(err.message || 'Subscription failed');
+      toastService.handleApiError(err, 'Subscription failed. Please try again.');
     } finally {
       setLoading(false);
     }

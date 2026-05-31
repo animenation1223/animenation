@@ -4,6 +4,7 @@ import { HttpError } from "../middleware/errorHandler";
 import { getGoogleClient } from "../../oidc/googleClient";
 import { issueAccessToken } from "../../security/jwt";
 import { upsertUserFromGoogle } from "../../../usecases/auth/upsertUserFromGoogle";
+import { sendEmail, generatePasswordResetHtml } from "../../../services/email/email.service";
 import { ZodError, z } from "zod";
 import crypto from "crypto";
 
@@ -221,11 +222,15 @@ export const forgotPasswordHandler: RequestHandler = async (req, res, next) => {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       // Do not reveal user existence
-      res.json({ ok: true });
+      res.json({ ok: true, message: "If the email exists, a reset link has been sent." });
       return;
     }
+    
+    // Generate secure reset token
     const token = crypto.randomBytes(32).toString("hex");
-    const expires = new Date(Date.now() + 1000 * 60 * 30);
+    const expires = new Date(Date.now() + 1000 * 60 * 30); // 30 minutes
+    
+    // Update user with reset token
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -234,11 +239,35 @@ export const forgotPasswordHandler: RequestHandler = async (req, res, next) => {
       },
     });
 
+    // Generate reset link
+    const frontendUrl = process.env.FRONTEND_BASE_URL || "http://localhost:5173";
+    const resetLink = `${frontendUrl}/reset-password?token=${token}`;
+
+    // Send email
+    try {
+      const html = generatePasswordResetHtml(user.name || "Otaku", resetLink);
+      await sendEmail({
+        to: user.email,
+        subject: "Reset Your Password - AnimeNation",
+        html,
+      });
+    } catch (emailError) {
+      console.error("[Forgot Password] Failed to send email:", emailError);
+      // In production, you might want to retry or queue the email
+      // For now, we continue and return success to prevent user enumeration
+    }
+
+    // In development, return the token for testing
     const payload =
       process.env.NODE_ENV !== "production"
-        ? { reset_token: token }
+        ? { reset_token: token, reset_link: resetLink }
         : {};
-    res.json({ ok: true, ...payload });
+    
+    res.json({ 
+      ok: true, 
+      message: "If the email exists, a reset link has been sent.",
+      ...payload 
+    });
   } catch (err) {
     next(err);
   }

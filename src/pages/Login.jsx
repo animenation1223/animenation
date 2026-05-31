@@ -49,22 +49,7 @@ export default function Login() {
         </form>
         <div className="text-xs text-muted-foreground flex justify-between">
           <Link to="/signup" className="text-primary hover:underline">Create account</Link>
-          <button
-            type="button"
-            className="text-primary hover:underline"
-            onClick={async () => {
-              const emailPrompt = window.prompt('Enter your email for reset link');
-              if (!emailPrompt) return;
-              try {
-                await apiFetch('/api/auth/forgot-password', { method: 'POST', body: { email: emailPrompt } });
-                toast.success('If the email exists, a reset link has been sent.');
-              } catch (err) {
-                toast.error(err.message || 'Failed to request reset');
-              }
-            }}
-          >
-            Forgot password?
-          </button>
+          <Link to="/forgot-password" className="text-primary hover:underline">Forgot password?</Link>
         </div>
       </div>
     </div>

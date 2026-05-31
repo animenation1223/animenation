@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 const CATEGORIES = ['t-shirts', 'oversized-tshirts', 'hoodies', 'posters', 'stickers', 'keychains', 'manga', 'action-figures', 'phone-covers', 'mouse-pads', 'accessories'];
 const ANIME = ['naruto', 'one-piece', 'attack-on-titan', 'demon-slayer', 'dragon-ball', 'jujutsu-kaisen', 'chainsaw-man', 'bleach', 'tokyo-revengers', 'spy-x-family', 'other'];
@@ -46,6 +47,9 @@ export default function AdminProducts() {
       setDialogOpen(false);
       toast.success(editProduct ? 'Product updated!' : 'Product created!');
     },
+    onError: (error) => {
+      toastService.handleApiError(error, editProduct ? 'Failed to update product.' : 'Failed to create product.');
+    },
   });
 
   const deleteMutation = useMutation({
@@ -54,15 +58,23 @@ export default function AdminProducts() {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       toast.success('Product deleted');
     },
+    onError: (error) => {
+      toastService.handleApiError(error, 'Failed to delete product.');
+    },
   });
 
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setForm({ ...form, image_url: file_url });
-    setUploading(false);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setForm({ ...form, image_url: file_url });
+    } catch (error) {
+      toastService.handleApiError(error, 'Failed to upload image.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const openCreate = () => {

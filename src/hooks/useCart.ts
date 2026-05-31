@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/services/api';
 import { CartItem } from '@/types';
+import { toastService } from '@/lib/toast-service';
 
 export function useCartQuery() {
   return useQuery<CartItem[]>({
@@ -18,6 +19,9 @@ export function useAddToCartMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart-items'] });
     },
+    onError: (error) => {
+      toastService.cartError(error);
+    },
   });
 }
 
@@ -28,6 +32,9 @@ export function useUpdateCartMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart-items'] });
     },
+    onError: (error) => {
+      toastService.cartError(error);
+    },
   });
 }
 
@@ -37,6 +44,9 @@ export function useDeleteCartMutation() {
     mutationFn: (id) => base44.entities.CartItem.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart-items'] });
+    },
+    onError: (error) => {
+      toastService.cartError(error);
     },
   });
 }

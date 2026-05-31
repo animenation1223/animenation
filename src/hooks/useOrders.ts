@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/services/api';
 import { Order } from '@/types';
+import { toastService } from '@/lib/toast-service';
 
 export function useOrdersQuery() {
   return useQuery<Order[]>({
@@ -20,6 +21,9 @@ export function useCreateOrderMutation() {
       queryClient.invalidateQueries({ queryKey: ['cart-items'] });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
     },
+    onError: (error) => {
+      toastService.orderError(error);
+    },
   });
 }
 
@@ -29,6 +33,9 @@ export function useUpdateOrderMutation() {
     mutationFn: ({ id, data }) => base44.entities.Order.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+    onError: (error) => {
+      toastService.orderError(error);
     },
   });
 }
