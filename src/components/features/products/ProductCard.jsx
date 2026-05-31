@@ -3,13 +3,30 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/services/api';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { toastService } from '@/lib/toast-service';
 
 export default function ProductCard({ product, index = 0 }) {
   const queryClient = useQueryClient();
   const [wishlisted, setWishlisted] = useState(false);
   const [addingCart, setAddingCart] = useState(false);
+  const [hoveredImage, setHoveredImage] = useState(0);
+
+  // Fetch product images
+  const { data: productImages = [] } = useQuery({
+    queryKey: ['product-images-thumb', product.id],
+    queryFn: () => base44.entities.ProductImage.filter({ product_id: product.id }, 'sort_order', 2),
+    enabled: !!product.id,
+    initialData: [],
+  });
+
+  // Get primary image (first image) and secondary image (second image for hover)
+  const images = productImages.length > 0 
+    ? productImages.map(img => img.url)
+    : [product.image_url, ...(product.images || [])].filter(Boolean);
+  
+  const primaryImage = images[0];
+  const secondaryImage = images[1];
 
   const addToCart = async (e) => {
     e.preventDefault();
@@ -75,12 +92,22 @@ export default function ProductCard({ product, index = 0 }) {
 
           {/* Image container */}
           <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-              />
+            {primaryImage ? (
+              <>
+                <img
+                  src={hoveredImage === 1 && secondaryImage ? secondaryImage : primaryImage}
+                  alt={product.title}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="lazy"
+                  onMouseEnter={() => setHoveredImage(1)}
+                  onMouseLeave={() => setHoveredImage(0)}
+                />
+                {secondaryImage && (
+                  <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[9px] font-syne font-bold">
+                    +{images.length - 1}
+                  </div>
+                )}
+              </>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-4xl">
                 {product.category === 'hoodies' ? '🧥' : product.category === 'manga' ? '📚' : product.category === 'action-figures' ? '🏮' : '👕'}

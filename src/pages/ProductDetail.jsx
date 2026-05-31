@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { base44 } from '@/services/api';
+import { apiFetch } from '@/api/httpClient';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import {
@@ -60,12 +61,19 @@ export default function ProductDetail() {
 
   const recentIds = useRecentlyViewed(id);
 
-  const { data: product, isLoading } = useQuery({
+  const { data: product, isLoading, error: productError } = useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
       const products = await base44.entities.Product.filter({ id }, '', 1);
       return products[0];
     },
+  });
+
+  const { data: productImages = [], error: imagesError } = useQuery({
+    queryKey: ['product-images', id],
+    queryFn: () => apiFetch(`/api/uploads/cloudinary/product/${id}`),
+    enabled: !!id && !!product,
+    initialData: [],
   });
 
   const { data: relatedProducts = [] } = useQuery({
@@ -180,13 +188,28 @@ export default function ProductDetail() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-lg text-foreground mb-3">Product not found</p>
+          {productError && <p className="text-sm text-destructive mb-4">{productError.message}</p>}
           <Link to="/products" className="text-primary text-sm">← Back to Products</Link>
         </div>
       </div>
     );
   }
 
-  const allImages = [product.image_url, ...(product.images || [])].filter(Boolean);
+  const allImages = productImages.length > 0 
+    ? productImages.map(img => img.url)
+    : [product.image_url, ...(product.images || [])].filter(Boolean);
+  
+  // Debug logging
+  console.log('ProductDetail Debug:', {
+    id,
+    product: product ? product.id : null,
+    productTitle: product?.title,
+    productImageUrl: product?.image_url,
+    productImages: product.images,
+    productImagesCount: productImages.length,
+    allImagesCount: allImages.length,
+    allImages,
+  });
   const discount = product.compare_price
     ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100)
     : 0;

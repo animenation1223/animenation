@@ -5,8 +5,14 @@ import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/api/httpClient';
 import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
+import { FEATURE_FLAGS } from '@/lib/feature-flags';
 
 export default function PincodeChecker({ className = '' }) {
+  // Hide entire component if feature flag is disabled
+  if (!FEATURE_FLAGS.ENABLE_PINCODE_CHECK) {
+    return null;
+  }
+
   const [pincode, setPincode] = useState('');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);

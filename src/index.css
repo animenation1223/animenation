@@ -109,17 +109,17 @@
 
 /* Glassmorphism utility */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: hsl(var(--background) / 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid hsl(var(--border));
 }
 
 .glass-strong {
-  background: rgba(255, 255, 255, 0.95);
+  background: hsl(var(--background) / 0.95);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid hsl(var(--border));
 }
 
 /* Neon glow effects */

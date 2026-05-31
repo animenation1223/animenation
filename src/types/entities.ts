@@ -136,3 +136,17 @@ export interface ContactMessage extends BaseEntity {
   message: string;
   is_read: boolean;
 }
+
+export type ImageType = 'front' | 'back' | 'model_front' | 'model_back' | 'lifestyle';
+
+export interface ProductImage extends BaseEntity {
+  product_id: string;
+  type: ImageType;
+  url: string;
+  public_id: string;
+  width?: number;
+  height?: number;
+  format?: string;
+  bytes?: number;
+  sort_order: number;
+}

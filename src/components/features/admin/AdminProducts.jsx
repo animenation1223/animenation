@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/services/api';
+import { apiFetch } from '@/api/httpClient';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
+import ProductImageUpload from './ProductImageUpload';
 
 const CATEGORIES = ['t-shirts', 'oversized-tshirts', 'hoodies', 'posters', 'stickers', 'keychains', 'manga', 'action-figures', 'phone-covers', 'mouse-pads', 'accessories'];
 const ANIME = ['naruto', 'one-piece', 'attack-on-titan', 'demon-slayer', 'dragon-ball', 'jujutsu-kaisen', 'chainsaw-man', 'bleach', 'tokyo-revengers', 'spy-x-family', 'other'];
@@ -25,10 +27,18 @@ export default function AdminProducts() {
   const [editProduct, setEditProduct] = useState(null);
   const [form, setForm] = useState(EMPTY_PRODUCT);
   const [uploading, setUploading] = useState(false);
+  const [currentProductId, setCurrentProductId] = useState(null);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['admin-products'],
     queryFn: () => base44.entities.Product.list('-created_date'),
+    initialData: [],
+  });
+
+  const { data: currentProductImages = [] } = useQuery({
+    queryKey: ['product-images', currentProductId],
+    queryFn: () => apiFetch(`/api/uploads/cloudinary/product/${currentProductId}`),
+    enabled: !!currentProductId,
     initialData: [],
   });
 
@@ -37,15 +47,17 @@ export default function AdminProducts() {
       const payload = { ...data, price: Number(data.price), compare_price: data.compare_price ? Number(data.compare_price) : undefined, stock: Number(data.stock) };
       if (editProduct) {
         await base44.entities.Product.update(editProduct.id, payload);
+        return editProduct.id;
       } else {
-        await base44.entities.Product.create(payload);
+        const newProduct = await base44.entities.Product.create(payload);
+        return newProduct.id;
       }
     },
-    onSuccess: () => {
+    onSuccess: (productId) => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });
       queryClient.invalidateQueries({ queryKey: ['all-products'] });
-      setDialogOpen(false);
-      toast.success(editProduct ? 'Product updated!' : 'Product created!');
+      setCurrentProductId(productId);
+      toast.success(editProduct ? 'Product updated!' : 'Product created! Please add images.');
     },
     onError: (error) => {
       toastService.handleApiError(error, editProduct ? 'Failed to update product.' : 'Failed to create product.');
@@ -80,11 +92,13 @@ export default function AdminProducts() {
   const openCreate = () => {
     setEditProduct(null);
     setForm(EMPTY_PRODUCT);
+    setCurrentProductId(null);
     setDialogOpen(true);
   };
 
   const openEdit = (product) => {
     setEditProduct(product);
+    setCurrentProductId(product.id);
     setForm({
       title: product.title || '', description: product.description || '', price: product.price || '',
       compare_price: product.compare_price || '', category: product.category || 't-shirts',
@@ -186,13 +200,25 @@ export default function AdminProducts() {
             </div>
 
             <div>
-              <Label className="text-xs text-muted-foreground">Image</Label>
+              <Label className="text-xs text-muted-foreground">Legacy Image (Single)</Label>
               <div className="flex gap-3 mt-1 items-center">
                 <Input type="file" accept="image/*" onChange={handleImageUpload} className="bg-muted/50 border-border flex-1" />
                 {uploading && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
               </div>
               {form.image_url && <img src={form.image_url} alt="" className="w-16 h-20 rounded-lg object-cover mt-2" />}
             </div>
+
+            {currentProductId && (
+              <div>
+                <ProductImageUpload 
+                  productId={currentProductId} 
+                  existingImages={currentProductImages}
+                  onUploadSuccess={() => {
+                    queryClient.invalidateQueries({ queryKey: ['product-images', currentProductId] });
+                  }}
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -233,6 +259,20 @@ export default function AdminProducts() {
               {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               {editProduct ? 'Update Product' : 'Create Product'}
             </Button>
+
+            {currentProductId && (
+              <Button 
+                onClick={() => {
+                  setDialogOpen(false);
+                  setCurrentProductId(null);
+                  setEditProduct(null);
+                }}
+                variant="outline"
+                className="w-full h-11 font-syne font-bold"
+              >
+                Done
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>

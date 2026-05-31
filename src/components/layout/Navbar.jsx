@@ -75,7 +75,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <span className="text-white font-syne font-extrabold text-sm">AN</span>
+                <span className="text-primary-foreground font-syne font-extrabold text-sm">AN</span>
               </div>
               <span className="font-syne font-bold text-lg text-foreground group-hover:text-primary transition-colors hidden sm:block">
                 AnimeNation
@@ -127,7 +127,7 @@ export default function Navbar() {
               <Link to="/wishlist" className="relative p-2 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
                 <Heart className="w-5 h-5" />
                 {wishlistItems.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {wishlistItems.length}
                   </span>
                 )}
@@ -136,7 +136,7 @@ export default function Navbar() {
               <Link to="/cart" className="relative p-2 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
                 <ShoppingBag className="w-5 h-5" />
                 {cartItems.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-accent text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartItems.length}
                   </span>
                 )}
