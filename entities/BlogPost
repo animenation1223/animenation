@@ -1,0 +1,76 @@
+{
+  "name": "BlogPost",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Post title"
+    },
+    "slug": {
+      "type": "string",
+      "description": "SEO-friendly URL slug"
+    },
+    "excerpt": {
+      "type": "string",
+      "description": "Short summary shown in listings"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full post content (markdown/HTML)"
+    },
+    "cover_image": {
+      "type": "string",
+      "description": "Cover image URL"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "anime-news",
+        "merchandise-drops",
+        "style-guides",
+        "collection-announcements"
+      ],
+      "description": "Blog category"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Post tags"
+    },
+    "author": {
+      "type": "string",
+      "description": "Author name"
+    },
+    "is_published": {
+      "type": "boolean",
+      "default": false
+    },
+    "published_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "read_time": {
+      "type": "number",
+      "description": "Estimated read time in minutes"
+    },
+    "meta_title": {
+      "type": "string",
+      "description": "SEO meta title override"
+    },
+    "meta_description": {
+      "type": "string",
+      "description": "SEO meta description override"
+    },
+    "featured": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "title",
+    "slug",
+    "category"
+  ]
+}

@@ -1,0 +1,402 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  shipped
+  delivered
+  cancelled
+}
+
+enum PaymentMethod {
+  cod
+  upi
+  card
+  netbanking
+}
+
+enum PaymentStatus {
+  pending
+  created
+  authorized
+  captured
+  failed
+  refunded
+}
+
+enum CouponType {
+  percent
+  flat
+}
+
+enum LoyaltyEventType {
+  purchase
+  review
+  referral
+  referred
+  wishlist_add
+  newsletter
+  first_order
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  name       String?
+  pictureUrl String?
+  passwordHash       String?   @map("password_hash")
+  emailVerifiedAt    DateTime? @map("email_verified_at")
+  verificationToken  String?   @unique @map("verification_token")
+  resetPasswordToken String?   @map("reset_password_token")
+  resetTokenExpires  DateTime? @map("reset_token_expires")
+  role       UserRole @default(user)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+  orders        Order[]
+  reviews       Review[]
+  loyalty       LoyaltyAccount?
+  refreshTokens RefreshToken[]
+  paymentTransactions PaymentTransaction[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?  @db.Text
+  price        Int
+  comparePrice Int?     @map("compare_price")
+  category     String
+  animeSeries  String?  @map("anime_series")
+  imageUrl     String?  @map("image_url")
+  images       String[] @default([])
+  sizes        String[] @default([])
+  tags         String[] @default([])
+  stock        Int      @default(0)
+  rating       Float    @default(0)
+  reviewCount  Int      @default(0) @map("review_count")
+  isActive     Boolean  @default(true) @map("is_active")
+  gsm          String?
+  printType    String?  @map("print_type")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  reviews       Review[]
+  orderItems    OrderItem[]
+  cartItems     CartItem[]
+  wishlistItems WishlistItem[]
+
+  @@index([isActive, category])
+  @@index([isActive, animeSeries])
+  @@index([isActive, createdAt(sort: Desc)])
+  @@index([category])
+  @@index([animeSeries])
+  @@map("products")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  title     String
+  price     Int
+  quantity  Int      @default(1)
+  size      String?
+  imageUrl  String?  @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, size])
+  @@index([userId])
+  @@index([productId])
+  @@map("cart_items")
+}
+
+model WishlistItem {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  title     String
+  price     Int?
+  imageUrl  String?  @map("image_url")
+  category  String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@map("wishlist_items")
+}
+
+model Order {
+  id               String        @id @default(cuid())
+  userId           String        @map("user_id")
+  orderNumber      String        @unique @map("order_number")
+  subtotal         Int           @default(0)
+  shippingCost     Int           @default(0) @map("shipping_cost")
+  gstAmount        Int           @default(0) @map("gst_amount")
+  discountAmount   Int           @default(0) @map("discount_amount")
+  couponCode       String?       @map("coupon_code")
+  total            Int
+  status           OrderStatus   @default(pending)
+  paymentMethod    PaymentMethod @map("payment_method")
+  paymentStatus    PaymentStatus @default(pending) @map("payment_status")
+  paymentGateway   String?       @map("payment_gateway")
+  paymentOrderId   String?       @map("payment_order_id")
+  paymentId        String?       @map("payment_id")
+  paymentCapturedAt DateTime?    @map("payment_captured_at")
+  trackingId       String?       @map("tracking_id")
+  customerEmail    String?       @map("customer_email")
+  shippingName     String        @map("shipping_name")
+  shippingPhone    String        @map("shipping_phone")
+  shippingAddr     String        @map("shipping_addr")
+  shippingLandmark String?       @map("shipping_landmark")
+  shippingCity     String        @map("shipping_city")
+  shippingState    String        @map("shipping_state")
+  shippingPincode  String        @map("shipping_pincode")
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  user  User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items OrderItem[]
+  transactions PaymentTransaction[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([paymentOrderId])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model PaymentTransaction {
+  id               String        @id @default(cuid())
+  userId           String        @map("user_id")
+  orderId          String?       @map("order_id")
+  paymentMethod    PaymentMethod @map("payment_method")
+  gateway          String
+  gatewayOrderId   String        @map("gateway_order_id")
+  gatewayPaymentId String?       @map("gateway_payment_id")
+  amount           Int
+  currency         String        @default("INR")
+  status           PaymentStatus @default(created)
+  signatureVerified Boolean      @default(false) @map("signature_verified")
+  failureReason    String?       @map("failure_reason")
+  metadata         Json?
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order Order? @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([gatewayOrderId])
+  @@index([gatewayPaymentId])
+  @@index([status])
+  @@map("payment_transactions")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String  @map("order_id")
+  productId String  @map("product_id")
+  title     String
+  price     Int
+  quantity  Int
+  size      String?
+  imageUrl  String? @map("image_url")
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  userId       String?  @map("user_id")
+  productId    String   @map("product_id")
+  reviewerName String?  @map("reviewer_name")
+  rating       Int
+  comment      String?  @db.Text
+  isApproved   Boolean  @default(false) @map("is_approved")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, isApproved])
+  @@index([createdAt(sort: Desc)])
+  @@map("reviews")
+}
+
+model BlogPost {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  excerpt         String?   @db.Text
+  content         String?   @db.Text
+  coverImage      String?   @map("cover_image")
+  category        String
+  tags            String[]  @default([])
+  author          String?
+  isPublished     Boolean   @default(false) @map("is_published")
+  publishedDate   DateTime? @map("published_date")
+  readTime        Int?      @map("read_time")
+  metaTitle       String?   @map("meta_title")
+  metaDescription String?   @map("meta_description") @db.Text
+  featured        Boolean   @default(false)
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  @@index([isPublished, publishedDate(sort: Desc)])
+  @@index([slug])
+  @@index([category])
+  @@map("blog_posts")
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([isRead, createdAt(sort: Desc)])
+  @@index([email])
+  @@map("contact_messages")
+}
+
+model Coupon {
+  id        String     @id @default(cuid())
+  code      String     @unique
+  type      CouponType @default(percent)
+  discount  Int
+  minOrder  Int        @default(0) @map("min_order")
+  active    Boolean    @default(true)
+  uses      Int        @default(0)
+  expiresAt DateTime?  @map("expires_at")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@index([active, code])
+  @@map("coupons")
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  cta       String
+  link      String
+  gradient  String
+  sortOrder Int      @default(0) @map("sort_order")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([active, sortOrder])
+  @@map("banners")
+}
+
+model LoyaltyAccount {
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  points         Int      @default(0)
+  referralCode   String   @unique @map("referral_code")
+  referralsMade  Int      @default(0) @map("referrals_made")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions LoyaltyTransaction[]
+
+  @@map("loyalty_accounts")
+}
+
+model LoyaltyTransaction {
+  id        String           @id @default(cuid())
+  accountId String           @map("account_id")
+  type      LoyaltyEventType
+  delta     Int
+  meta      Json?
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  account LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt(sort: Desc)])
+  @@map("loyalty_transactions")
+}
+
+model NewsletterSubscription {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  userId    String?  @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("newsletter_subscriptions")
+}
+
+model PincodeServiceability {
+  pincode   String   @id
+  courier   String
+  etaDays   Int      @map("eta_days")
+  cod       Boolean  @default(true)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([courier])
+  @@map("pincode_serviceability")
+}
+
+model RecentlyViewed {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  productId String   @map("product_id")
+  viewedAt  DateTime @default(now()) @map("viewed_at")
+
+  @@unique([userId, productId])
+  @@index([userId, viewedAt(sort: Desc)])
+  @@map("recently_viewed")
+}

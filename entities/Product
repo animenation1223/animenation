@@ -1,0 +1,110 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Product description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Price in INR"
+    },
+    "compare_price": {
+      "type": "number",
+      "description": "Original price before discount"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "t-shirts",
+        "oversized-tshirts",
+        "hoodies",
+        "posters",
+        "stickers",
+        "keychains",
+        "manga",
+        "action-figures",
+        "phone-covers",
+        "mouse-pads",
+        "accessories"
+      ],
+      "description": "Product category"
+    },
+    "anime_series": {
+      "type": "string",
+      "enum": [
+        "naruto",
+        "one-piece",
+        "attack-on-titan",
+        "demon-slayer",
+        "dragon-ball",
+        "jujutsu-kaisen",
+        "chainsaw-man",
+        "bleach",
+        "tokyo-revengers",
+        "spy-x-family",
+        "other"
+      ],
+      "description": "Anime series"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Main product image"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional images"
+    },
+    "sizes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Available sizes"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags like trending, bestseller, new-arrival, limited"
+    },
+    "stock": {
+      "type": "number",
+      "default": 0
+    },
+    "rating": {
+      "type": "number",
+      "default": 0
+    },
+    "review_count": {
+      "type": "number",
+      "default": 0
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "gsm": {
+      "type": "string",
+      "description": "Fabric GSM for clothing"
+    },
+    "print_type": {
+      "type": "string",
+      "description": "DTG, Screen Print, etc."
+    }
+  },
+  "required": [
+    "title",
+    "price",
+    "category"
+  ]
+}
