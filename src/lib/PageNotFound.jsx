@@ -14,6 +14,7 @@ export default function PageNotFound({}) {
                 const user = await base44.auth.me();
                 return { user, isAuthenticated: true };
             } catch (error) {
+                console.error('[PageNotFound] Auth check failed:', error);
                 return { user: null, isAuthenticated: false };
             }
         }

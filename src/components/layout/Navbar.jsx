@@ -8,6 +8,7 @@ import { base44 } from '@/services/api';
 import { useAuth } from '@/context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from '@/components/common/ThemeToggle';
 
 const CATEGORIES = [
   { label: 'T-Shirts', value: 't-shirts' },
@@ -118,6 +119,7 @@ export default function Navbar() {
 
             {/* Right icons */}
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               <button onClick={() => setSearchOpen(!searchOpen)} className="p-2 rounded-lg hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground">
                 <Search className="w-5 h-5" />
               </button>

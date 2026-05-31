@@ -42,7 +42,12 @@ export const toastService = {
           }
           break;
         case 401:
-          toast.error("Your session has expired. Please log in again.");
+          // Check if this is a login credential error vs session expiration
+          if (errorMessage.toLowerCase().includes("invalid credentials") || errorMessage.toLowerCase().includes("incorrect")) {
+            toast.error("Incorrect email or password.");
+          } else {
+            toast.error("Your session has expired. Please log in again.");
+          }
           break;
         case 403:
           toast.error("You do not have permission to perform this action.");

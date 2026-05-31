@@ -3,6 +3,7 @@ import { Tag, CheckCircle, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/api/httpClient';
+import { toastService } from '@/lib/toast-service';
 
 export default function CouponSection({ onApply, subtotal = 0 }) {
   const [code, setCode] = useState('');
@@ -23,6 +24,7 @@ export default function CouponSection({ onApply, subtotal = 0 }) {
       onApply(coupon.type === 'percent' ? coupon.discount : 0, coupon.discount_amount, coupon.code);
     } catch (e) {
       setError(e.message || 'Invalid coupon code');
+      toastService.handleApiError(e, 'Invalid coupon code');
     } finally {
       setLoading(false);
     }

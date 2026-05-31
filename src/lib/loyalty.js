@@ -28,7 +28,8 @@ export async function fetchLoyaltyAccount() {
   try {
     cachedAccount = await apiFetch('/api/loyalty/me');
     return cachedAccount;
-  } catch {
+  } catch (error) {
+    console.error('[Loyalty] Failed to fetch loyalty account:', error);
     return null;
   }
 }

@@ -41,7 +41,8 @@ export const base44: Base44Client = {
       try {
         await apiFetch('/api/auth/me');
         return true;
-      } catch {
+      } catch (error) {
+        console.error('[API] Auth check failed:', error);
         return false;
       }
     },

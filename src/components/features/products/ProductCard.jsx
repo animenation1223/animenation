@@ -4,7 +4,7 @@ import { Heart, ShoppingBag, Star, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/services/api';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 export default function ProductCard({ product, index = 0 }) {
   const queryClient = useQueryClient();
@@ -26,13 +26,9 @@ export default function ProductCard({ product, index = 0 }) {
       });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Added to cart!');
+      toastService.success('Added to cart!');
     } catch (err) {
-      if (err?.status === 401 || err?.status === 403) {
-        toast.error('Please sign in to add items to cart');
-      } else {
-        toast.error(err?.message || 'Failed to add to cart');
-      }
+      toastService.cartError(err);
     } finally {
       setAddingCart(false);
     }
@@ -52,13 +48,9 @@ export default function ProductCard({ product, index = 0 }) {
       setWishlisted(true);
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
-      toast.success('Added to wishlist!');
+      toastService.success('Added to wishlist!');
     } catch (err) {
-      if (err?.status === 401 || err?.status === 403) {
-        toast.error('Please sign in to add wishlist items');
-      } else {
-        toast.error(err?.message || 'Failed to add to wishlist');
-      }
+      toastService.wishlistError(err);
     }
   };
 

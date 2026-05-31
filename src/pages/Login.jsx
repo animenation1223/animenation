@@ -4,7 +4,7 @@ import { apiFetch } from '@/api/httpClient';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,11 +20,11 @@ export default function Login() {
     try {
       await apiFetch('/api/auth/login', { method: 'POST', body: { email, password } });
       await checkUserAuth();
-      toast.success('Logged in');
+      toastService.success('Logged in');
       const returnTo = searchParams.get('return_to');
       navigate(returnTo || '/');
     } catch (err) {
-      toast.error(err.message || 'Login failed');
+      toastService.authError(err);
     } finally {
       setLoading(false);
     }

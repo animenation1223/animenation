@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiFetch } from '@/api/httpClient';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -15,10 +15,10 @@ export default function Signup() {
     setLoading(true);
     try {
       await apiFetch('/api/auth/signup', { method: 'POST', body: form });
-      toast.success('Account created. Check email to verify (in dev, see response token).');
+      toastService.success('Account created. Check email to verify (in dev, see response token).');
       navigate('/login');
     } catch (err) {
-      toast.error(err.message || 'Signup failed');
+      toastService.authError(err);
     } finally {
       setLoading(false);
     }

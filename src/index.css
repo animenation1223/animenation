@@ -9,42 +9,44 @@
     --font-syne: 'Syne', sans-serif;
     --font-inter: 'Inter', sans-serif;
 
-    --background: 240 10% 3.5%;
-    --foreground: 210 40% 98%;
-    --card: 240 6% 8%;
-    --card-foreground: 210 40% 98%;
-    --popover: 240 6% 8%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 350 100% 56%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 271 91% 65%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 240 4% 16%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 271 91% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Light Theme Colors (Default) */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 222 47% 11%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 350 100% 56%;
-    --chart-1: 350 100% 56%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
+    --chart-1: 222 47% 11%;
     --chart-2: 271 91% 65%;
     --chart-3: 197 37% 50%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.75rem;
-    --sidebar-background: 240 6% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 350 100% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 16%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 240 4% 16%;
-    --sidebar-ring: 350 100% 56%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 222 47% 11%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 222 47% 11%;
   }
 
   .dark {
+    /* Dark Theme Colors */
     --background: 240 10% 3.5%;
     --foreground: 210 40% 98%;
     --card: 240 6% 8%;
@@ -95,29 +97,29 @@
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: hsl(240 6% 8%);
+  background: hsl(210 40% 96%);
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(350 100% 56% / 0.4);
+  background: hsl(222 47% 11% / 0.2);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(350 100% 56% / 0.7);
+  background: hsl(222 47% 11% / 0.4);
 }
 
 /* Glassmorphism utility */
 .glass {
-  background: rgba(15, 15, 20, 0.6);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .glass-strong {
-  background: rgba(15, 15, 20, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* Neon glow effects */

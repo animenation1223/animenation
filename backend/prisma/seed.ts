@@ -150,6 +150,7 @@ const PINCODES = [
   { pincode: "500001", courier: "BlueDart", etaDays: 3 },
   { pincode: "302001", courier: "Shiprocket", etaDays: 5 },
   { pincode: "380001", courier: "Delhivery", etaDays: 3 },
+  { pincode: "521108", courier: "Delhivery", etaDays: 4 },
 ];
 
 async function main() {

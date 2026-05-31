@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import { base44 } from '@/services/api';
 import { useSEO } from '@/lib/seo';
 import { useQuery } from '@tanstack/react-query';
@@ -48,19 +49,28 @@ const SORT_OPTIONS = [
 ];
 
 export default function Products() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const initialCategory = urlParams.get('category') || 'all';
-  const initialSeries = urlParams.get('series') || 'all';
-  const initialSearch = urlParams.get('search') || '';
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
-  const [search, setSearch] = useState(initialSearch);
-  const [category, setCategory] = useState(initialCategory);
-  const [series, setSeries] = useState(initialSeries);
+  const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [category, setCategory] = useState(searchParams.get('category') || 'all');
+  const [series, setSeries] = useState(searchParams.get('series') || 'all');
   const [sort, setSort] = useState('-created_date');
   const [showFilters, setShowFilters] = useState(false);
 
+  // Sync state with URL params on navigation
+  useEffect(() => {
+    const urlCategory = searchParams.get('category') || 'all';
+    const urlSeries = searchParams.get('series') || 'all';
+    const urlSearch = searchParams.get('search') || '';
+
+    setCategory(urlCategory);
+    setSeries(urlSeries);
+    setSearch(urlSearch);
+  }, [searchParams, location.pathname]);
+
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['products'],
+    queryKey: ['products', category, series, search],
     queryFn: () => base44.entities.Product.filter({ is_active: true }, '-created_date', 200),
     initialData: [],
   });
@@ -92,6 +102,8 @@ export default function Products() {
     setCategory('all');
     setSeries('all');
     setSort('-created_date');
+    // Update URL to clear params
+    window.history.replaceState({}, '', '/products');
   };
 
   const hasFilters = search || category !== 'all' || series !== 'all';
@@ -135,7 +147,13 @@ export default function Products() {
             <SlidersHorizontal className="w-4 h-4 mr-2" /> Filters
           </Button>
           <div className="hidden sm:flex gap-3">
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category} onValueChange={(value) => {
+              setCategory(value);
+              const params = new URLSearchParams(searchParams.toString());
+              if (value === 'all') params.delete('category');
+              else params.set('category', value);
+              window.history.replaceState({}, '', `/products?${params.toString()}`);
+            }}>
               <SelectTrigger className="w-44 bg-card border-border h-11">
                 <SelectValue />
               </SelectTrigger>
@@ -143,7 +161,13 @@ export default function Products() {
                 {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
               </SelectContent>
             </Select>
-            <Select value={series} onValueChange={setSeries}>
+            <Select value={series} onValueChange={(value) => {
+              setSeries(value);
+              const params = new URLSearchParams(searchParams.toString());
+              if (value === 'all') params.delete('series');
+              else params.set('series', value);
+              window.history.replaceState({}, '', `/products?${params.toString()}`);
+            }}>
               <SelectTrigger className="w-44 bg-card border-border h-11">
                 <SelectValue />
               </SelectTrigger>
@@ -172,13 +196,25 @@ export default function Products() {
               className="sm:hidden overflow-hidden mb-6"
             >
               <div className="space-y-3 p-4 rounded-xl bg-card border border-border">
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(value) => {
+                  setCategory(value);
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (value === 'all') params.delete('category');
+                  else params.set('category', value);
+                  window.history.replaceState({}, '', `/products?${params.toString()}`);
+                }}>
                   <SelectTrigger className="bg-muted/50 border-border"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                <Select value={series} onValueChange={setSeries}>
+                <Select value={series} onValueChange={(value) => {
+                  setSeries(value);
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (value === 'all') params.delete('series');
+                  else params.set('series', value);
+                  window.history.replaceState({}, '', `/products?${params.toString()}`);
+                }}>
                   <SelectTrigger className="bg-muted/50 border-border"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {ANIME.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}
