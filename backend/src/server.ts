@@ -21,13 +21,28 @@ export function createServer() {
     app.set("trust proxy", 1);
   }
 
-  const frontendBaseUrl = process.env.FRONTEND_BASE_URL || "http://localhost:5173";
+  // Configure CORS to allow multiple frontend origins
+  const allowedOrigins = process.env.FRONTEND_BASE_URL
+    ? process.env.FRONTEND_BASE_URL.split(',').map(origin => origin.trim())
+    : ['http://localhost:5173'];
 
   app.use(helmet());
   app.use(
     cors({
-      origin: frontendBaseUrl,
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('CORS policy: Origin not allowed'));
+        }
+      },
       credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     })
   );
 
