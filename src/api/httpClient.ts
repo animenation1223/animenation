@@ -1,6 +1,7 @@
 import { EntityApi } from '@/types';
 
 const TOKEN_KEY = 'base44_access_token';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
 export function getAccessToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -27,7 +28,9 @@ export async function apiFetch<T = any>(
   if (token) reqHeaders.Authorization = `Bearer ${token}`;
   if (body && !isFormData) reqHeaders['Content-Type'] = 'application/json';
 
-  const res = await fetch(path, {
+  const url = path.startsWith('http') ? path : `${API_BASE_URL}${path}`;
+
+  const res = await fetch(url, {
     method,
     headers: reqHeaders,
     body: body ? (isFormData ? body : JSON.stringify(body)) : undefined,
