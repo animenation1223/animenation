@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { apiFetch } from '@/api/httpClient';
+import { apiFetch, setAccessToken } from '@/api/httpClient';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +18,13 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await apiFetch('/api/auth/login', { method: 'POST', body: { email, password } });
+      const response = await apiFetch('/api/auth/login', { method: 'POST', body: { email, password } });
+      
+      // Store access token in localStorage
+      if (response.access_token) {
+        setAccessToken(response.access_token);
+      }
+      
       await checkUserAuth();
       toastService.success('Logged in');
       const returnTo = searchParams.get('return_to');

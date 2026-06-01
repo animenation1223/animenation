@@ -153,6 +153,7 @@ export const emailLoginHandler: RequestHandler = async (req, res, next) => {
       role: user.role,
       name: user.name,
       picture_url: user.pictureUrl,
+      access_token: accessToken,
     });
   } catch (err) {
     if (err instanceof ZodError) {
