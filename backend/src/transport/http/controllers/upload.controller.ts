@@ -9,6 +9,13 @@ type ImageType = 'front' | 'back' | 'model_front' | 'model_back' | 'lifestyle';
 
 const UPLOAD_DIR = path.join(process.cwd(), "uploads");
 
+// Helper to normalize Express params (can be string | string[] | undefined)
+function normalizeParam(param: string | string[] | undefined): string | undefined {
+  if (typeof param === 'string') return param;
+  if (Array.isArray(param) && param.length > 0) return param[0];
+  return undefined;
+}
+
 export const uploadFileHandler: RequestHandler = async (req, res, next) => {
   try {
     if (!req.file) throw new HttpError(400, "No file uploaded");
@@ -104,7 +111,9 @@ export const uploadCloudinaryImageHandler: RequestHandler = async (req, res, nex
 
 export const deleteCloudinaryImageHandler: RequestHandler = async (req, res, next) => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    
+    if (!id) throw new HttpError(400, "Invalid image ID");
     
     const image = await prisma.productImage.findUnique({
       where: { id },
@@ -141,7 +150,9 @@ export const deleteCloudinaryImageHandler: RequestHandler = async (req, res, nex
 
 export const getProductImagesHandler: RequestHandler = async (req, res, next) => {
   try {
-    const { productId } = req.params;
+    const productId = normalizeParam(req.params.productId);
+    
+    if (!productId) throw new HttpError(400, "Invalid product ID");
     
     const images = await prisma.productImage.findMany({
       where: { productId },
