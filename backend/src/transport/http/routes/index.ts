@@ -9,7 +9,7 @@ export const apiRouter = Router();
 
 apiRouter.use(extrasRouter);
 apiRouter.use(entitiesRouter);
-apiRouter.use(paymentsRouter);
+apiRouter.use("/payments", paymentsRouter);
 apiRouter.use("/auth", authRouter);
 apiRouter.use("/uploads", uploadRouter);
 
