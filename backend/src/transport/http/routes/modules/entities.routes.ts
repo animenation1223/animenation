@@ -28,6 +28,8 @@ import {
   updateOrder,
   updateProduct,
   updateReview,
+  getSiteSettings,
+  updateSiteSettings,
 } from "../../controllers/entities.controller";
 
 export const entitiesRouter = Router();
@@ -70,3 +72,7 @@ entitiesRouter.delete("/blog-posts/:id", requireAdmin, deleteBlogPost);
 entitiesRouter.get("/contact-messages", requireAdmin, listContactMessages);
 entitiesRouter.post("/contact-messages", createContactMessage);
 entitiesRouter.patch("/contact-messages/:id", requireAdmin, updateContactMessage);
+
+// Site Settings (public read, admin write)
+entitiesRouter.get("/site-settings", getSiteSettings);
+entitiesRouter.patch("/site-settings", requireAdmin, updateSiteSettings);

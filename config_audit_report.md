@@ -88,23 +88,7 @@ Each variable referenced across the frontend and backend has been analyzed below
 - **Example Format**: `true` | `false`
 - **Required Value Source**: Application business policy configuration.
 
-#### `GOOGLE_OIDC_CLIENT_ID`
-- **Where Used**: `backend/src/transport/oidc/googleClient.ts` (line 9)
-- **Purpose**: Google OAuth Client ID for authenticating users via Google.
-- **Example Format**: `1234567890-abcdef.apps.googleusercontent.com`
-- **Required Value Source**: Google Cloud Platform Console → APIs & Services → Credentials.
 
-#### `GOOGLE_OIDC_CLIENT_SECRET`
-- **Where Used**: `backend/src/transport/oidc/googleClient.ts` (line 10)
-- **Purpose**: Google OAuth Client Secret for authenticating users via Google.
-- **Example Format**: `GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxx`
-- **Required Value Source**: Google Cloud Platform Console → APIs & Services → Credentials.
-
-#### `GOOGLE_OIDC_REDIRECT_URI`
-- **Where Used**: `backend/src/transport/oidc/googleClient.ts` (line 11), `backend/src/transport/http/controllers/auth.controller.ts` (lines 289, 312)
-- **Purpose**: Fully qualified OAuth redirect callback URL hosted on the backend.
-- **Example Format**: `https://api.animeverse.in/api/auth/google/callback`
-- **Required Value Source**: Deployed backend domain + callback endpoint.
 
 #### `RAZORPAY_KEY_ID`
 - **Where Used**: `backend/src/services/payment/razorpay.service.ts` (line 9), `backend/src/services/payment/payment.service.ts` (line 126)
@@ -171,9 +155,6 @@ If left unchanged, these hardcoded placeholders or mock config keys will cause c
 | File | Variable Name | Active Value | Consequence |
 |---|---|---|---|
 | `backend/.env` | `JWT_SIGNING_SECRET` | `change_me_dev_only` | Extreme security hazard; allows users to forge admin auth tokens instantly. |
-| `backend/.env` | `GOOGLE_OIDC_CLIENT_ID` | `your_google_client_id` | Google Sign-in fails; users cannot authenticate. |
-| `backend/.env` | `GOOGLE_OIDC_CLIENT_SECRET` | `your_google_client_secret` | Google OAuth handshakes abort with authorization credentials failure. |
-| `backend/.env` | `GOOGLE_OIDC_REDIRECT_URI` | `http://localhost...` | Callback fails; Google blocks the authentication flow due to mismatching redirect origins. |
 | `backend/.env` | `ADMIN_EMAIL` | `admin@example.com` | No production user will receive automatically bootstrapped administrative privileges. |
 | `backend/Dockerfile` | `DATABASE_URL` (build envs) | *Absent* | Migrations fail to deploy; server startup aborted. |
 | `vercel.json` | `destination` | `https://your-backend.railway.app...` | API client network calls are sent to a dead URL, throwing `502 Bad Gateway` errors. |
@@ -205,10 +186,6 @@ JWT_ACCESS_TOKEN_TTL_SECONDS=900
 JWT_REFRESH_TOKEN_TTL_SECONDS=2592000
 REQUIRE_EMAIL_VERIFICATION=false
 
-# ── Google OAuth Sign-in ───────────────────────────────────────
-GOOGLE_OIDC_CLIENT_ID="your_google_client_id.apps.googleusercontent.com"
-GOOGLE_OIDC_CLIENT_SECRET="GOCSPX-your_google_client_secret"
-GOOGLE_OIDC_REDIRECT_URI="http://localhost:4000/api/auth/google/callback"
 
 # ── Administrative Roles ───────────────────────────────────────
 ADMIN_EMAIL="admin@example.com"
@@ -244,10 +221,6 @@ JWT_ACCESS_TOKEN_TTL_SECONDS=900
 JWT_REFRESH_TOKEN_TTL_SECONDS=2592000
 REQUIRE_EMAIL_VERIFICATION=false
 
-# ── Google OAuth Sign-in ───────────────────────────────────────
-GOOGLE_OIDC_CLIENT_ID="xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"
-GOOGLE_OIDC_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-GOOGLE_OIDC_REDIRECT_URI="https://your-backend.railway.app/api/auth/google/callback"
 
 # ── Administrative Roles ───────────────────────────────────────
 ADMIN_EMAIL="admin@yourdomain.com"
@@ -269,15 +242,7 @@ RAZORPAY_WEBHOOK_SECRET="xxxxxxxxxxxxxxxxxxxxxxxx"
    - Copy the string under **Transaction** (for `DATABASE_URL` with transaction pooling).
    - Copy the string under **Session** (for `DIRECT_URL` used for migrations).
 
-### Google Authentication
-1. **GCP Project Setup**:
-   - Go to the [Google Cloud Console](https://console.cloud.google.com).
-   - Enable the Google Sign-in API, and navigate to **APIs & Services** -> **OAuth consent screen**. Create your external consent screen.
-   - Go to **Credentials** -> **Create Credentials** -> **OAuth client ID**.
-   - Set the Application type to **Web application**.
-   - Add your client domain (e.g. `https://your-app.vercel.app`) to **Authorized JavaScript origins**.
-   - Add your production callback handler (e.g. `https://your-backend.railway.app/api/auth/google/callback`) to **Authorized redirect URIs**.
-   - Copy the generated `Client ID` (`GOOGLE_OIDC_CLIENT_ID`) and `Client Secret` (`GOOGLE_OIDC_CLIENT_SECRET`).
+
 
 ### Razorpay Integration
 1. **Merchant Setup**:

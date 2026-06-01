@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  url       = "postgresql://animenation:animenation@localhost:5432/animenation?schema=public"
+  directUrl = "postgresql://animenation:animenation@localhost:5432/animenation?schema=public"
 }
 
 enum UserRole {
@@ -430,4 +430,14 @@ model RecentlyViewed {
   @@unique([userId, productId])
   @@index([userId, viewedAt(sort: Desc)])
   @@map("recently_viewed")
+}
+
+model SiteSettings {
+  id               String   @id @default(cuid())
+  maintenanceMode  Boolean  @default(false) @map("maintenance_mode")
+  maintenanceUntil DateTime? @map("maintenance_until")
+  maintenanceMessage String? @map("maintenance_message")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
 }

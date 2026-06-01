@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import PageLoader from '@/components/common/PageLoader';
 import ScrollToTop from '@/components/common/ScrollToTop';
+import MaintenanceGuard from '@/components/MaintenanceGuard';
 
 // Global Layout
 import Layout from './components/layout/Layout';
@@ -32,6 +33,7 @@ const Blog = lazy(() => import('./pages/Blog'));
 const BlogPost = lazy(() => import('./pages/BlogPost'));
 const Sitemap = lazy(() => import('./pages/Sitemap'));
 const Loyalty = lazy(() => import('./pages/Loyalty'));
+const Maintenance = lazy(() => import('./pages/Maintenance'));
 const PageNotFound = lazy(() => import('./lib/PageNotFound'));
 
 const AuthenticatedApp: React.FC = () => {
@@ -47,30 +49,33 @@ const AuthenticatedApp: React.FC = () => {
 
   return (
     <Suspense fallback={<PageLoader text="Loading page..." />}>
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/admin" element={<Dashboard />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/sitemap" element={<Sitemap />} />
-          <Route path="/loyalty" element={<Loyalty />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-        </Route>
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
+      <MaintenanceGuard>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/product/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/wishlist" element={<Wishlist />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/admin" element={<Dashboard />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/sitemap" element={<Sitemap />} />
+            <Route path="/loyalty" element={<Loyalty />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+          </Route>
+          <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </MaintenanceGuard>
     </Suspense>
   );
 };

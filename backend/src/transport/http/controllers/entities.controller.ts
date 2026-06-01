@@ -15,6 +15,10 @@ import {
 import { createOrderForUser } from "../../../services/order.service";
 import { routeParam } from "../../../lib/params";
 
+function serializeSiteSettings(settings: any) {
+  return keysToCamel(settings);
+}
+
 function parseLimit(raw: unknown, fallback = 100) {
   const n = Number(raw);
   return Number.isFinite(n) && n > 0 ? Math.min(n, 500) : fallback;
@@ -543,6 +547,53 @@ export const updateContactMessage: RequestHandler = async (req, res, next) => {
       },
     });
     res.json(serializeContactMessage(row));
+  } catch (e) {
+    next(e);
+  }
+};
+
+// ─── Site Settings ───────────────────────────────────────────────
+
+export const getSiteSettings: RequestHandler = async (req, res, next) => {
+  try {
+    let settings = await prisma.siteSettings.findFirst();
+    if (!settings) {
+      settings = await prisma.siteSettings.create({
+        data: {
+          maintenanceMode: false,
+        },
+      });
+    }
+    res.json(serializeSiteSettings(settings));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const updateSiteSettings: RequestHandler = async (req, res, next) => {
+  try {
+    const data = keysToCamel(req.body) as Record<string, unknown>;
+    let settings = await prisma.siteSettings.findFirst();
+    
+    if (!settings) {
+      settings = await prisma.siteSettings.create({
+        data: {
+          maintenanceMode: data.maintenanceMode !== undefined ? Boolean(data.maintenanceMode) : false,
+          maintenanceUntil: data.maintenanceUntil ? new Date(data.maintenanceUntil as string) : null,
+          maintenanceMessage: data.maintenanceMessage ? String(data.maintenanceMessage) : null,
+        },
+      });
+    } else {
+      settings = await prisma.siteSettings.update({
+        where: { id: settings.id },
+        data: {
+          ...(data.maintenanceMode !== undefined ? { maintenanceMode: Boolean(data.maintenanceMode) } : {}),
+          ...(data.maintenanceUntil !== undefined ? { maintenanceUntil: data.maintenanceUntil ? new Date(data.maintenanceUntil as string) : null } : {}),
+          ...(data.maintenanceMessage !== undefined ? { maintenanceMessage: data.maintenanceMessage ? String(data.maintenanceMessage) : null } : {}),
+        },
+      });
+    }
+    res.json(serializeSiteSettings(settings));
   } catch (e) {
     next(e);
   }

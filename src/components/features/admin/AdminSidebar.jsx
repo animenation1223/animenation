@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   BarChart3, Package, ShoppingBag, MessageSquare, Star,
-  Tag, Megaphone, Truck, Users, X, LayoutDashboard
+  Tag, Megaphone, Truck, Users, X, LayoutDashboard, Settings
 } from 'lucide-react';
 
 const NAV = [
@@ -15,6 +15,7 @@ const NAV = [
   { id: 'banners', label: 'Banners', icon: Megaphone },
   { id: 'shipping', label: 'Shipping', icon: Truck },
   { id: 'messages', label: 'Messages', icon: MessageSquare },
+  { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
 export default function AdminSidebar({ active, onSelect, onClose }) {

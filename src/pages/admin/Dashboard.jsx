@@ -13,6 +13,7 @@ import AdminReviews from '../../components/features/admin/AdminReviews';
 import AdminCoupons from '../../components/features/admin/AdminCoupons';
 import AdminBanners from '../../components/features/admin/AdminBanners';
 import AdminShipping from '../../components/features/admin/AdminShipping';
+import AdminSettings from '../../components/features/admin/AdminSettings';
 
 const TITLES = {
   overview: 'Overview',
@@ -25,6 +26,7 @@ const TITLES = {
   banners: 'Banner Management',
   shipping: 'Shipping Management',
   messages: 'Messages',
+  settings: 'Site Settings',
 };
 
 export default function Dashboard() {
@@ -83,6 +85,7 @@ export default function Dashboard() {
       case 'banners': return <AdminBanners />;
       case 'shipping': return <AdminShipping />;
       case 'messages': return <AdminMessages />;
+      case 'settings': return <AdminSettings />;
       default: return <AdminOverview />;
     }
   };
