@@ -9,7 +9,6 @@ import {
   Share2, Zap, Star, CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 
 import ImageGallery from '../components/features/product/ImageGallery';
@@ -107,7 +106,7 @@ export default function ProductDetail() {
 
   const addToCart = useCallback(async () => {
     if (product?.sizes?.length > 0 && !selectedSize) {
-      toast.error('Please select a size first');
+      toastService.error('Please select a size first');
       return;
     }
     try {
@@ -121,7 +120,7 @@ export default function ProductDetail() {
       });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
-      toast.success('Added to cart!');
+      toastService.success('Added to cart!');
     } catch (error) {
       toastService.cartError(error);
     }
@@ -144,7 +143,7 @@ export default function ProductDetail() {
         category: product.category,
       });
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
-      toast.success('Added to wishlist!');
+      toastService.success('Added to wishlist!');
     } catch (error) {
       setWishlisted(false);
       toastService.wishlistError(error);
@@ -156,7 +155,7 @@ export default function ProductDetail() {
       navigator.share({ title: product.title, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied!');
+      toastService.success('Link copied!');
     }
   };
 

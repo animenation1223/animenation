@@ -5,7 +5,6 @@ import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import { useSEO } from '@/lib/seo';
 import { useAuth } from '@/context/AuthContext';
 import { toastService } from '@/lib/toast-service';
@@ -29,7 +28,7 @@ export default function Wishlist() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wishlist'] });
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
-      toast.success('Removed from wishlist');
+      toastService.success('Removed from wishlist');
     },
     onError: (error) => {
       toastService.wishlistError(error);
@@ -50,9 +49,9 @@ export default function Wishlist() {
       queryClient.invalidateQueries({ queryKey: ['wishlist-count'] });
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
-      toast.success('Moved to cart! 🛒');
+      toastService.success('Moved to cart! 🛒');
     } catch (err) {
-      toast.error(err?.message || 'Failed to move item to cart');
+      toastService.error(err?.message || 'Failed to move item to cart');
     }
   };
 

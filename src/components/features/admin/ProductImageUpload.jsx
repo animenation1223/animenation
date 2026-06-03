@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Upload, X, Loader2, Image as ImageIcon, CheckCircle, GripVertical, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/api/httpClient';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 const IMAGE_TYPES = [
   { value: 'front', label: 'Front Image' },
@@ -32,19 +32,19 @@ export default function ProductImageUpload({ productId, existingImages = [], onU
 
     // Check if we've reached the max limit
     if (images.length >= MAX_IMAGES) {
-      toast.error(`Maximum ${MAX_IMAGES} images allowed per product`);
+      toastService.error(`Maximum ${MAX_IMAGES} images allowed per product`);
       return;
     }
 
     // Validate file type
     if (!selectedFile.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+      toastService.error('Please select an image file');
       return;
     }
 
     // Validate file size (max 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB');
+      toastService.error('Image size must be less than 5MB');
       return;
     }
 
@@ -69,12 +69,12 @@ export default function ProductImageUpload({ productId, existingImages = [], onU
         isFormData: true,
       });
 
-      toast.success('Image uploaded successfully!');
+      toastService.success('Image uploaded successfully!');
       setFile(null);
       setPreview(null);
       if (onUploadSuccess) onUploadSuccess(result);
     } catch (error) {
-      toast.error(error.message || 'Failed to upload image');
+      toastService.error(error.message || 'Failed to upload image');
     } finally {
       setUploading(false);
     }
@@ -85,10 +85,10 @@ export default function ProductImageUpload({ productId, existingImages = [], onU
 
     try {
       await apiFetch(`/api/uploads/cloudinary/${imageId}`, { method: 'DELETE' });
-      toast.success('Image deleted successfully');
+      toastService.success('Image deleted successfully');
       if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
-      toast.error(error.message || 'Failed to delete image');
+      toastService.error(error.message || 'Failed to delete image');
     }
   };
 
@@ -96,7 +96,7 @@ export default function ProductImageUpload({ productId, existingImages = [], onU
     // NOTE: Reorder endpoint not implemented in backend yet
     // Backend needs: PATCH /api/uploads/cloudinary/:id/reorder
     // For now, this is disabled
-    toast.info('Image reordering requires backend implementation');
+    toastService.info('Image reordering requires backend implementation');
     return;
 
     const currentIndex = images.findIndex(img => img.id === imageId);
@@ -119,10 +119,10 @@ export default function ProductImageUpload({ productId, existingImages = [], onU
         )
       );
       setImages(newImages);
-      toast.success('Image order updated');
+      toastService.success('Image order updated');
       if (onUploadSuccess) onUploadSuccess();
     } catch (error) {
-      toast.error(error.message || 'Failed to reorder images');
+      toastService.error(error.message || 'Failed to reorder images');
     }
   };
 

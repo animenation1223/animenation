@@ -9,8 +9,8 @@ import {
 
 export const paymentsRouter = Router();
 
-paymentsRouter.post("/payments/razorpay/order", requireAuth, createRazorpayOrderHandler);
-paymentsRouter.post("/payments/razorpay/retry", requireAuth, retryRazorpayOrderHandler);
-paymentsRouter.post("/payments/razorpay/verify", requireAuth, verifyRazorpayPaymentHandler);
-paymentsRouter.post("/payments/razorpay/failure", requireAuth, markRazorpayFailureHandler);
+paymentsRouter.post("/razorpay/order", requireAuth, createRazorpayOrderHandler);
+paymentsRouter.post("/razorpay/retry", requireAuth, retryRazorpayOrderHandler);
+paymentsRouter.post("/razorpay/verify", requireAuth, verifyRazorpayPaymentHandler);
+paymentsRouter.post("/razorpay/failure", requireAuth, markRazorpayFailureHandler);
 

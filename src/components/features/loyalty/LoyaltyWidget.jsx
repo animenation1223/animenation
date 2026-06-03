@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getPoints, getTier, getNextTier, getProgressToNext, getReferralCode } from '@/lib/loyalty';
 import { Gift, Copy, ChevronDown, ChevronUp, Zap } from 'lucide-react';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 export default function LoyaltyWidget({ userId }) {
   const [points, setPoints] = useState(0);
@@ -21,7 +21,7 @@ export default function LoyaltyWidget({ userId }) {
 
   const copyCode = () => {
     navigator.clipboard.writeText(code);
-    toast.success('Referral code copied!');
+    toastService.success('Referral code copied!');
   };
 
   return (

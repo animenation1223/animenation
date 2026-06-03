@@ -3,7 +3,6 @@ import { MapPin, CheckCircle, Truck, Package, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { apiFetch } from '@/api/httpClient';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 import { FEATURE_FLAGS } from '@/lib/feature-flags';
 

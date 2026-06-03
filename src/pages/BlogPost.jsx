@@ -8,7 +8,7 @@ import { useSEO, buildBlogSchema } from '@/lib/seo';
 import Breadcrumb from '@/components/common/Breadcrumb';
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 const CATEGORY_LABELS = {
   'anime-news': 'Anime News',
@@ -48,7 +48,7 @@ export default function BlogPostPage() {
       navigator.share({ title: post.title, url: window.location.href });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      toast.success('Link copied!');
+      toastService.success('Link copied!');
     }
   };
 

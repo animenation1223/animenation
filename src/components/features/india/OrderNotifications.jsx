@@ -10,8 +10,8 @@ export default function OrderNotifications({ orderNumber, onSave }) {
   const [saved, setSaved] = useState(false);
 
   const handleSave = () => {
-    if (!phone && !email) { toast.error('Enter at least one contact'); return; }
-    if (phone && phone.length !== 10) { toast.error('Enter a valid 10-digit phone number'); return; }
+    if (!phone && !email) { toastService.error('Enter at least one contact'); return; }
+    if (phone && phone.length !== 10) { toastService.error('Enter a valid 10-digit phone number'); return; }
     toast.success('You\'ll get order updates via SMS & email! 📬');
     setSaved(true);
     onSave?.({ phone: phone ? `+91${phone}` : '', email });

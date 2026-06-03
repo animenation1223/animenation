@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, ChevronLeft, MapPin, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 
 import CheckoutSteps from '../components/features/checkout/CheckoutSteps';
@@ -52,7 +51,7 @@ export default function Checkout() {
 
   const handleSubmitOrder = async () => {
     if (!isAddressValid) {
-      toast.error('Please fill all required address fields');
+      toastService.error('Please fill all required address fields');
       setStep(1);
       return;
     }
@@ -159,7 +158,7 @@ export default function Checkout() {
               payment_method: payment,
               shipping_address: address,
             });
-            toast.error(verifyErr?.message || 'Payment verification failed');
+            toastService.error(verifyErr?.message || 'Payment verification failed');
           } finally {
             setSubmitting(false);
           }
@@ -211,9 +210,9 @@ export default function Checkout() {
       razorpay.open();
     } catch (err) {
       if (err?.status === 401 || err?.status === 403) {
-        toast.error('Please sign in to place your order');
+        toastService.error('Please sign in to place your order');
       } else {
-        toast.error(err?.message || 'Failed to place order');
+        toastService.error(err?.message || 'Failed to place order');
       }
       setPaymentError(err?.message || 'Failed to place order');
     } finally {
@@ -357,7 +356,7 @@ export default function Checkout() {
                   </div>
 
                   <Button
-                    onClick={() => { if (isAddressValid) { setStep(2); } else { toast.error('Please fill all required fields'); } }}
+                    onClick={() => { if (isAddressValid) { setStep(2); } else { toastService.error('Please fill all required fields'); } }}
                     className="w-full bg-primary hover:bg-primary/90 h-12 font-syne font-bold rounded-xl mt-2 glow-red"
                   >
                     Continue to Payment

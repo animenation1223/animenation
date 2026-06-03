@@ -41,7 +41,8 @@ export async function apiFetch<T = any>(
     let message = res.statusText;
     try {
       const data = await res.json();
-      message = data.message || data.error || message;
+      // Handle various error response formats
+      message = data.message || data.error || data.error?.message || data.data?.message || data.data?.error || data.data?.error?.message || message;
     } catch {
       /* ignore */
     }

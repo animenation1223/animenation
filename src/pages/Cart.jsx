@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { ArrowRight, ChevronLeft, Sparkles } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 
 import CartItem from '../components/features/cart/CartItem';
@@ -63,7 +62,7 @@ export default function Cart() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['cart-count'] });
-      toast.success('Removed from cart');
+      toastService.success('Removed from cart');
     },
     onError: (error) => {
       toastService.cartError(error);

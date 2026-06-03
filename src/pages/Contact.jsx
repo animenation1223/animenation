@@ -6,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Mail, Phone, MapPin, Send, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 
 export default function Contact() {
@@ -16,7 +15,7 @@ export default function Contact() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) {
-      toast.error('Please fill required fields');
+      toastService.error('Please fill required fields');
       return;
     }
     setSubmitting(true);

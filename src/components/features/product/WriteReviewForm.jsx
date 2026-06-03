@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Star } from 'lucide-react';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 import { motion } from 'framer-motion';
 import { addPoints, POINTS_CONFIG } from '@/lib/loyalty';
 
@@ -20,8 +20,8 @@ export default function WriteReviewForm({ productId, onSubmitted }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!rating) { toast.error('Please select a rating'); return; }
-    if (!name.trim()) { toast.error('Please enter your name'); return; }
+    if (!rating) { toastService.error('Please select a rating'); return; }
+    if (!name.trim()) { toastService.error('Please enter your name'); return; }
     setSubmitting(true);
     await base44.entities.Review.create({
       product_id: productId,

@@ -21,7 +21,7 @@ export default function NewsletterSection() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !email.includes('@')) { toast.error('Enter a valid email'); return; }
+    if (!email || !email.includes('@')) { toastService.error('Enter a valid email'); return; }
     setLoading(true);
     try {
       await apiFetch('/api/newsletter', { method: 'POST', body: { email } });

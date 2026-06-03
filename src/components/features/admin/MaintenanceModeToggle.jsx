@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 
 export default function MaintenanceModeToggle() {
   const queryClient = useQueryClient();
@@ -37,10 +37,10 @@ export default function MaintenanceModeToggle() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['site-settings'] });
-      toast.success('Site settings updated successfully');
+      toastService.success('Site settings updated successfully');
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to update site settings');
+      toastService.handleApiError(error, 'Failed to update site settings');
     },
   });
 

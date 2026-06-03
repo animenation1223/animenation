@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { apiFetch } from '@/api/httpClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 
@@ -16,7 +15,7 @@ export default function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
-      toast.error('Please enter a valid email address');
+      toastService.error('Please enter a valid email address');
       return;
     }
     setLoading(true);

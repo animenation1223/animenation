@@ -6,7 +6,7 @@ import {
   getReferralCode, getReferralsMade, TIERS, addPoints, fetchLoyaltyAccount
 } from '@/lib/loyalty';
 import { Gift, Copy, Share2, Zap, Star, ShoppingBag, Trophy, ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
+import { toastService } from '@/lib/toast-service';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 
@@ -29,7 +29,7 @@ export default function Loyalty() {
 
   const copyCode = () => {
     navigator.clipboard.writeText(code);
-    toast.success('Referral code copied! Share with friends to earn 200 pts.');
+    toastService.success('Referral code copied! Share with friends to earn 200 pts.');
   };
 
   const shareCode = () => {
@@ -48,7 +48,7 @@ export default function Loyalty() {
   const demoAdd = (pts, label) => {
     addPoints(pts);
     setPoints(getPoints());
-    toast.success(`+${pts} pts earned for ${label}! 🎉`);
+    toastService.success(`+${pts} pts earned for ${label}! 🎉`);
   };
 
   if (loading) {

@@ -1,10 +1,109 @@
 import { toast } from 'sonner';
 
+/**
+ * Extract meaningful error message from various error formats
+ * Supports all common API response structures
+ */
+function extractErrorMessage(error) {
+  // Handle null/undefined
+  if (!error) {
+    return 'Something went wrong. Please try again.';
+  }
+
+  // Handle string errors
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  // Handle Error objects
+  if (error instanceof Error) {
+    return error.message || 'Something went wrong. Please try again.';
+  }
+
+  // Handle API response objects - check all possible nested structures
+  const apiError = error;
+
+  // Check for message field at top level
+  if (apiError.message && typeof apiError.message === 'string') {
+    return apiError.message;
+  }
+
+  // Check for error field at top level
+  if (apiError.error && typeof apiError.error === 'string') {
+    return apiError.error;
+  }
+
+  // Check for nested error.message structure
+  if (apiError.error?.message && typeof apiError.error.message === 'string') {
+    return apiError.error.message;
+  }
+
+  // Check for data.message structure
+  if (apiError.data?.message && typeof apiError.data.message === 'string') {
+    return apiError.data.message;
+  }
+
+  // Check for data.error structure
+  if (apiError.data?.error && typeof apiError.data.error === 'string') {
+    return apiError.data.error;
+  }
+
+  // Check for data.error.message structure
+  if (apiError.data?.error?.message && typeof apiError.data.error.message === 'string') {
+    return apiError.data.error.message;
+  }
+
+  // Check for detail field (common in Django/DRF)
+  if (apiError.detail && typeof apiError.detail === 'string') {
+    return apiError.detail;
+  }
+
+  // Check for errors array
+  if (Array.isArray(apiError.errors) && apiError.errors.length > 0) {
+    const firstError = apiError.errors[0];
+    if (firstError?.message && typeof firstError.message === 'string') {
+      return firstError.message;
+    }
+    if (firstError && typeof firstError === 'string') {
+      return firstError;
+    }
+  }
+
+  // Try to stringify the error as last resort
+  try {
+    const stringified = JSON.stringify(error);
+    if (stringified && stringified !== '{}') {
+      return stringified;
+    }
+  } catch (e) {
+    // Ignore JSON stringify errors
+  }
+
+  // Final fallback - convert to string
+  try {
+    return String(error);
+  } catch (e) {
+    return 'Something went wrong. Please try again.';
+  }
+}
+
 export const toastService = {
-  success: (message) => toast.success(message),
-  error: (message) => toast.error(message),
-  warning: (message) => toast.warning(message),
-  info: (message) => toast.info(message),
+  success: (message) => {
+    const displayMessage = typeof message === 'string' ? message : String(message || '');
+    toast.success(displayMessage);
+  },
+  error: (message) => {
+    const displayMessage = typeof message === 'string' ? message : String(message || '');
+    toast.error(displayMessage);
+  },
+  warning: (message) => {
+    const displayMessage = typeof message === 'string' ? message : String(message || '');
+    toast.warning(displayMessage);
+  },
+  info: (message) => {
+    const displayMessage = typeof message === 'string' ? message : String(message || '');
+    toast.info(displayMessage);
+  },
 
   /**
    * Centralized handler for API response and network errors.
@@ -18,77 +117,81 @@ export const toastService = {
     // 1. Keep detailed errors in dev console logs
     console.error("API Error Logged:", error);
 
-    // 2. Extract error response message safely
-    const errorMessage = String(error?.message || error?.error || "");
+    // 2. Extract error response message safely using robust utility
+    const errorMessage = extractErrorMessage(error);
+    
+    // 3. Ensure errorMessage is always a string
+    const displayMessage = typeof errorMessage === 'string' ? errorMessage : String(errorMessage || fallbackMessage);
+    
     const isNetworkError = !error?.status && (
-      errorMessage.toLowerCase().includes("fetch") || 
-      errorMessage.toLowerCase().includes("network") ||
-      errorMessage.toLowerCase().includes("failed to connect")
+      displayMessage.toLowerCase().includes("fetch") || 
+      displayMessage.toLowerCase().includes("network") ||
+      displayMessage.toLowerCase().includes("failed to connect")
     );
 
     // 3. Map to specific user-friendly toast messages
     if (isNetworkError) {
-      toast.error("Unable to connect to server. Please try again.");
+      toastService.error("Unable to connect to server. Please try again.");
       return;
     }
 
     if (error?.status) {
       switch (error.status) {
         case 400:
-          if (errorMessage.toLowerCase().includes("validation") || errorMessage.toLowerCase().includes("invalid")) {
-            toast.error("Please check the highlighted fields.");
+          if (displayMessage.toLowerCase().includes("validation") || displayMessage.toLowerCase().includes("invalid")) {
+            toastService.error("Please check the highlighted fields.");
           } else {
-            toast.error(errorMessage || fallbackMessage);
+            toastService.error(displayMessage || fallbackMessage);
           }
           break;
         case 401:
           // Check if this is a login credential error vs session expiration
-          if (errorMessage.toLowerCase().includes("invalid credentials") || errorMessage.toLowerCase().includes("incorrect")) {
-            toast.error("Incorrect email or password.");
+          if (displayMessage.toLowerCase().includes("invalid credentials") || displayMessage.toLowerCase().includes("incorrect")) {
+            toastService.error("Incorrect email or password.");
           } else {
-            toast.error("Your session has expired. Please log in again.");
+            toastService.error("Your session has expired. Please log in again.");
           }
           break;
         case 403:
-          toast.error("You do not have permission to perform this action.");
+          toastService.error("You do not have permission to perform this action.");
           break;
         case 404:
-          toast.error(errorMessage || "Requested resource not found.");
+          toastService.error(displayMessage || "Requested resource not found.");
           break;
         case 409:
-          toast.error(errorMessage || "Conflict occurred. Please try again.");
+          toastService.error(displayMessage || "Conflict occurred. Please try again.");
           break;
         case 422:
-          toast.error("Please check the highlighted fields.");
+          toastService.error("Please check the highlighted fields.");
           break;
         case 429:
-          toast.error("Too many requests. Please try again later.");
+          toastService.error("Too many requests. Please try again later.");
           break;
         case 500:
           // Check for specific configuration errors
-          if (errorMessage.toLowerCase().includes("razorpay") && errorMessage.toLowerCase().includes("not configured")) {
-            toast.error("Payment service is not configured. Please contact support.");
+          if (displayMessage.toLowerCase().includes("razorpay") && displayMessage.toLowerCase().includes("not configured")) {
+            toastService.error("Payment service is not configured. Please contact support.");
           } else {
-            toast.error("Something went wrong. Please try again.");
+            toastService.error("Something went wrong. Please try again.");
           }
           break;
         default:
-          toast.error(errorMessage || fallbackMessage);
+          toastService.error(displayMessage || fallbackMessage);
       }
     } else {
       // Context-specific fallback messages
       if (context === 'cart') {
-        toast.error("Unable to update cart. Please try again.");
+        toastService.error("Unable to update cart. Please try again.");
       } else if (context === 'payment') {
-        toast.error("Payment could not be completed. Please try again.");
+        toastService.error("Payment could not be completed. Please try again.");
       } else if (context === 'order') {
-        toast.error("Unable to place order. Please try again.");
+        toastService.error("Unable to place order. Please try again.");
       } else if (context === 'wishlist') {
-        toast.error("Unable to update wishlist. Please try again.");
+        toastService.error("Unable to update wishlist. Please try again.");
       } else if (context === 'product') {
-        toast.error("Unable to load product. Please try again.");
+        toastService.error("Unable to load product. Please try again.");
       } else {
-        toast.error(fallbackMessage);
+        toastService.error(fallbackMessage);
       }
     }
   },

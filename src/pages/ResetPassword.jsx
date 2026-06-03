@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { apiFetch } from '@/api/httpClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
 import { toastService } from '@/lib/toast-service';
 import { Lock, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 
@@ -21,7 +20,7 @@ export default function ResetPassword() {
   useEffect(() => {
     if (!token) {
       setIsValidToken(false);
-      toast.error('Invalid or missing reset token');
+      toastService.error('Invalid or missing reset token');
     }
   }, [token]);
 
@@ -60,17 +59,17 @@ export default function ResetPassword() {
     e.preventDefault();
     
     if (!token) {
-      toast.error('Invalid or missing reset token');
+      toastService.error('Invalid or missing reset token');
       return;
     }
 
     if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+      toastService.error('Passwords do not match');
       return;
     }
 
     if (passwordStrength.score < 3) {
-      toast.error('Password is too weak. Please make it stronger.');
+      toastService.error('Password is too weak. Please make it stronger.');
       return;
     }
 
@@ -80,11 +79,11 @@ export default function ResetPassword() {
         method: 'POST', 
         body: { token, password } 
       });
-      toast.success('Password reset successfully! You can now login with your new password.');
+      toastService.success('Password reset successfully! You can now login with your new password.');
       navigate('/login');
     } catch (err) {
       if (err.message?.includes('Invalid or expired token')) {
-        toast.error('This reset link has expired or is invalid. Please request a new one.');
+        toastService.error('This reset link has expired or is invalid. Please request a new one.');
         navigate('/forgot-password');
       } else {
         toastService.handleApiError(err, 'Failed to reset password. Please try again.');

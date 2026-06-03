@@ -33,7 +33,7 @@ export default function RazorpayButton({
     }
 
     if (!window.Razorpay) {
-      toast.error('Razorpay failed to load. Please refresh and try again.');
+      toastService.error('Razorpay failed to load. Please refresh and try again.');
       return;
     }
 
@@ -65,7 +65,7 @@ export default function RazorpayButton({
     const rzp = new window.Razorpay(options);
     rzp.on('payment.failed', (response) => {
       setLoading(false);
-      toast.error('Payment failed. Please try again.');
+      toastService.error('Payment failed. Please try again.');
       onFailure?.(response.error);
     });
     rzp.open();
