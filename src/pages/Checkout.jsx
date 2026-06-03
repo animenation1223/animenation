@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { base44 } from '@/services/api';
+import { apiFetch } from '@/api/httpClient';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
@@ -97,21 +98,13 @@ export default function Checkout() {
       });
       if (!scriptLoaded) throw new Error('Unable to load Razorpay checkout');
 
-      const orderResp = await fetch('/api/payments/razorpay/order', {
+      const gatewayOrder = await apiFetch('/api/payments/razorpay/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
+        body: {
           payment_method: payment,
           shipping_address: address,
-        }),
+        },
       });
-      if (!orderResp.ok) {
-        const err = await orderResp.json().catch(() => null);
-        toastService.paymentError(err || new Error('Failed to create payment order'));
-        throw new Error(err?.error?.message || 'Failed to create payment order');
-      }
-      const gatewayOrder = await orderResp.json();
 
       const options = {
         key: gatewayOrder.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID,
@@ -130,27 +123,20 @@ export default function Checkout() {
         },
         handler: async (response) => {
           try {
-            const verifyResp = await fetch('/api/payments/razorpay/verify', {
+            await apiFetch('/api/payments/razorpay/verify', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
+              body: {
                 payment_method: payment,
                 shipping_address: address,
                 gateway_order_id: response.razorpay_order_id,
                 gateway_payment_id: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
-              }),
+              },
             });
-            if (!verifyResp.ok) {
-              const err = await verifyResp.json().catch(() => null);
-              toastService.paymentError(err || new Error('Payment verification failed'));
-              throw new Error(err?.error?.message || 'Payment verification failed');
-            }
             queryClient.invalidateQueries({ queryKey: ['cart'] });
             queryClient.invalidateQueries({ queryKey: ['cart-count'] });
             queryClient.invalidateQueries({ queryKey: ['orders'] });
-            toast.success(`Payment successful. Order ${orderNumber} placed! 🎉`);
+            toastService.success(`Payment successful. Order ${orderNumber} placed! 🎉`);
             navigate('/orders');
           } catch (verifyErr) {
             setPaymentError(verifyErr?.message || 'Payment verification failed');
@@ -165,14 +151,12 @@ export default function Checkout() {
         },
         modal: {
           ondismiss: async () => {
-            await fetch('/api/payments/razorpay/failure', {
+            await apiFetch('/api/payments/razorpay/failure', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              credentials: 'include',
-              body: JSON.stringify({
+              body: {
                 gateway_order_id: gatewayOrder.gateway_order_id,
                 reason: 'Checkout closed by user',
-              }),
+              },
             }).catch((error) => {
               toastService.paymentError(error);
             });
@@ -188,15 +172,13 @@ export default function Checkout() {
 
       const razorpay = new window.Razorpay(options);
       razorpay.on('payment.failed', async (resp) => {
-        await fetch('/api/payments/razorpay/failure', {
+        await apiFetch('/api/payments/razorpay/failure', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
+          body: {
             gateway_order_id: gatewayOrder.gateway_order_id,
             gateway_payment_id: resp?.error?.metadata?.payment_id,
             reason: resp?.error?.description || 'Gateway failure',
-          }),
+          },
         }).catch((error) => {
           toastService.paymentError(error);
         });
