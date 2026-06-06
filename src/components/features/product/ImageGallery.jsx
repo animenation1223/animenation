@@ -2,6 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { ZoomIn, ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Helper function to detect size chart images
+function isSizeChartImage(imageUrl) {
+  if (!imageUrl) return false;
+  const lowerUrl = imageUrl.toLowerCase();
+  return (
+    lowerUrl.includes('sizechart') ||
+    lowerUrl.includes('size-chart') ||
+    lowerUrl.includes('size_chart') ||
+    lowerUrl.includes('sizeguide') ||
+    lowerUrl.includes('size-guide')
+  );
+}
+
 export default function ImageGallery({ images, title }) {
   const [selected, setSelected] = useState(0);
   const [zoomed, setZoomed] = useState(false);
@@ -16,6 +29,9 @@ export default function ImageGallery({ images, title }) {
 
   // Fallback: ensure we have at least one image
   const galleryImages = images && images.length > 0 ? images : ['https://via.placeholder.com/400x500?text=No+Image'];
+
+  // Check if current selected image is a size chart
+  const currentImageIsSizeChart = isSizeChartImage(galleryImages[selected]);
 
   // Detect mobile
   useEffect(() => {
@@ -64,10 +80,10 @@ export default function ImageGallery({ images, title }) {
       {/* Main image */}
       <div
         ref={containerRef}
-        className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card border border-border cursor-zoom-in group"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setZoomed(true)}
-        onMouseLeave={() => setZoomed(false)}
+        className={`relative aspect-[3/4] rounded-2xl overflow-hidden bg-card border border-border ${currentImageIsSizeChart ? 'cursor-default' : 'cursor-zoom-in group'}`}
+        onMouseMove={currentImageIsSizeChart ? undefined : handleMouseMove}
+        onMouseEnter={currentImageIsSizeChart ? undefined : () => setZoomed(true)}
+        onMouseLeave={currentImageIsSizeChart ? undefined : () => setZoomed(false)}
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -85,8 +101,8 @@ export default function ImageGallery({ images, title }) {
             <img
               src={galleryImages[selected]}
               alt={title}
-              className="w-full h-full object-cover"
-              style={zoomed && !isMobile ? {
+              className={`w-full h-full ${currentImageIsSizeChart ? 'object-contain object-center' : 'object-cover'}`}
+              style={zoomed && !isMobile && !currentImageIsSizeChart ? {
                 transform: 'scale(1.7)',
                 transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
                 transition: 'transform 0.1s ease'
@@ -97,7 +113,7 @@ export default function ImageGallery({ images, title }) {
         </AnimatePresence>
 
         {/* Zoom hint */}
-        {!isMobile && (
+        {!isMobile && !currentImageIsSizeChart && (
           <div className="absolute top-3 right-3 w-8 h-8 rounded-xl glass flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <ZoomIn className="w-4 h-4" />
           </div>
@@ -147,7 +163,12 @@ export default function ImageGallery({ images, title }) {
                 i === selected ? 'border-primary shadow-[0_0_12px_rgba(255,31,68,0.3)]' : 'border-border hover:border-muted-foreground/30'
               }`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img 
+                src={img} 
+                alt="" 
+                className={`w-full h-full ${isSizeChartImage(img) ? 'object-contain object-center' : 'object-cover'}`} 
+                loading="lazy" 
+              />
             </button>
           ))}
         </div>
@@ -164,7 +185,12 @@ export default function ImageGallery({ images, title }) {
                 i === selected ? 'border-primary shadow-[0_0_12px_rgba(255,31,68,0.3)]' : 'border-border'
               }`}
             >
-              <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img 
+                src={img} 
+                alt="" 
+                className={`w-full h-full ${isSizeChartImage(img) ? 'object-contain object-center' : 'object-cover'}`} 
+                loading="lazy" 
+              />
             </button>
           ))}
         </div>
